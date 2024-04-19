@@ -21,11 +21,6 @@ load_dotenv()
 warnings.filterwarnings("ignore")
 gemini_api_key = os.getenv("GOOGLE_API_KEY")
 
-DB_FAISS_PATH = 'vectorstores/faiss'
-
-os.makedirs(DB_FAISS_PATH, exist_ok=True)
-
-
 def main():
     st.set_page_config(page_title='DocSpeak', page_icon='dockspeak_.png')
     st.header("DocSpeak")

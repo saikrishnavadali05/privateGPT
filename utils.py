@@ -5,7 +5,6 @@ import json
 import os
 import streamlit as st
 import textwrap
-import streamlit_chat as message
 from langchain_community.document_loaders import CSVLoader, PyPDFLoader
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
