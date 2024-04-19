@@ -37,7 +37,7 @@ def main():
     # with st.sidebar:
     if st.sidebar.button("Submit & Process"):
         if api_key:
-            with st.sidebar.spinner("Processing..."):
+            with st.spinner("Processing..."):
                 raw_text = get_pdf_text(pdf_docs)
                 text_chunks = get_text_chunks(raw_text)
                 _ = get_vector_store(text_chunks, api_key)
