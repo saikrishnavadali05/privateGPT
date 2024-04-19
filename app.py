@@ -27,19 +27,23 @@ def main():
     st.markdown("#### Chat with PDFs")
     st.warning('Be respectful while asking questions')
     user_question = st.text_input("Ask a Question from the PDF Files")
+    st.sidebar.markdown("# DocSpeak")
+    api_key = st.sidebar.text_input('Enter Gemini API key and Press Enter', type="password")
+    pdf_docs = st.sidebar.file_uploader("Upload your PDF Files.", accept_multiple_files=True)
 
     if user_question:
-        user_input(user_question)
+        user_input(user_question, api_key)
 
-    with st.sidebar:
-        st.sidebar.markdown("# DocSpeak")
-        pdf_docs = st.file_uploader("Upload your PDF Files and Click on the Submit & Process Button", accept_multiple_files=True)
-        if st.button("Submit & Process"):
-            with st.spinner("Processing..."):
+    # with st.sidebar:
+    if st.sidebar.button("Submit & Process"):
+        if api_key:
+            with st.sidebar.spinner("Processing..."):
                 raw_text = get_pdf_text(pdf_docs)
                 text_chunks = get_text_chunks(raw_text)
-                _ = get_vector_store(text_chunks)
-                st.success("Done")
+                _ = get_vector_store(text_chunks, api_key)
+                st.sidebar.success("Ready to Go!")
+        else:
+            st.sidebar.error('Please provide API key!')
 
 
 if __name__ == "__main__":

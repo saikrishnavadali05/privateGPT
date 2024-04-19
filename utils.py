@@ -17,11 +17,7 @@ from dotenv import load_dotenv
 # Set configuration
 load_dotenv()
 warnings.filterwarnings("ignore")
-gemini_api_key = os.getenv("GOOGLE_API_KEY")
 
-DB_FAISS_PATH = 'vectorstores/faiss'
-
-os.makedirs(DB_FAISS_PATH, exist_ok=True)
 
 def get_pdf_text(pdf_docs):
     text=""
@@ -30,7 +26,6 @@ def get_pdf_text(pdf_docs):
         for page in pdf_reader.pages:
             text+= page.extract_text()
     return  text
-
 
 
 def get_text_chunks(text):
@@ -52,13 +47,13 @@ def wrap_text_preserve_newlines(text, width=110):
     return wrapped_text
 
 
-def get_vector_store(text_chunks):
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
+def get_vector_store(text_chunks, gemini_api_key):
+    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001", google_api_key=gemini_api_key)
     vector_store = FAISS.from_texts(text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")
 
 
-def get_conversational_chain(db):
+def get_conversational_chain(db, gemini_api_key):
 
     prompt_template = """
     Answer the question as detailed as possible from the provided context, make sure to provide all the details, if the answer is not in
@@ -74,7 +69,8 @@ def get_conversational_chain(db):
                                temperatur=0.3,
                                google_api_key=gemini_api_key)
     
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001",
+                                              google_api_key=gemini_api_key)
 
     prompt = PromptTemplate(template=prompt_template, input_variables = ["context", "question"])
     db = FAISS.load_local('faiss_index', embeddings, allow_dangerous_deserialization=True)
@@ -86,13 +82,14 @@ def get_conversational_chain(db):
     return chain
 
 
-def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
+def user_input(user_question, gemini_api_key):
+    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001",
+                                              google_api_key=gemini_api_key)
     
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
 
-    chain = get_conversational_chain(new_db)
+    chain = get_conversational_chain(new_db, gemini_api_key)
     
     response = chain.invoke(user_question)
     st.write()
